@@ -56,7 +56,7 @@ function About() {
         <h2 className="text-3xl font-semibold mb-8 text-center">Our Team</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { name: 'Dipesh Joshi', role: 'Team Lead', image: '/path-to-dipesh-image.jpg' },
+            { name: 'Dipesh Joshi', role: 'Team Lead', image: 'https://avatars.githubusercontent.com/u/54115006?v=4' },
             { name: 'Bhaskar Bhatt', role: 'AI Engineer', image: '/path-to-bhaskar-image.jpg' },
             { name: 'Rudresh Manral', role: 'Frontend Developer', image: '/path-to-rudresh-image.jpg' },
             { name: 'Sohil Khan', role: 'Backend Developer', image: '/path-to-shohel-image.jpg' },
