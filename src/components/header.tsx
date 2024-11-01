@@ -1,5 +1,5 @@
 'use client'
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Dark } from './dark';
@@ -9,12 +9,19 @@ import { signIn, useSession, signOut } from "next-auth/react"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuShortcut } from './ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
+import { BiLoader } from "react-icons/bi";
 
 type HeaderProps = object
 
 const Header: FC<HeaderProps> = () => {
+    const [initialLoading, setInitialLoading] = useState<boolean>(true);
+    const { data: session, status } = useSession();
+    useEffect(() => {
+        if (status !== "loading") {
+            setInitialLoading(false);
+        }
+    }, [status, session]);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const { data: session } = useSession()
     const router = useRouter();
 
     const navItems = [
@@ -52,7 +59,9 @@ const Header: FC<HeaderProps> = () => {
     };
 
     const renderAuthButton = (mobile: boolean = false) => (
-        !session ? (
+        initialLoading && status === "loading" ? (
+            <BiLoader className="animate-spin" />
+        ) : !session ? (
             <Button
                 variant="outline"
                 className={`transition-all duration-300 hover:scale-105 hover:shadow-md ${mobile ? 'w-full dark:text-white dark:border-white' : 'hidden md:block'} cursor-pointer`}
@@ -69,7 +78,7 @@ const Header: FC<HeaderProps> = () => {
                 Logout
             </Button>
         ) : (
-            <DropdownMenu >
+            <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Avatar className="cursor-pointer">
                         <AvatarImage src={session.user?.image || undefined} />
@@ -150,5 +159,4 @@ const Header: FC<HeaderProps> = () => {
         </header>
     );
 };
-
 export default Header;
