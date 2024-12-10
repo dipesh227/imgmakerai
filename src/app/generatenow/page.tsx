@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import Image from "next/image";
+import { BiLoader } from "react-icons/bi";
 
 const formSchema = z.object({
     prompt: z.string().min(7, { message: "Prompt must be at least 7 characters" })
@@ -21,7 +22,7 @@ const formSchema = z.object({
 
 export default function GenerateNowPage() {
     const [outputImg, setOutputImg] = useState<string | null>(null)
-    // const [loding, setLoding] = useState<boolean>(false)
+    const [loding, setLoding] = useState<boolean>(false)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -30,13 +31,21 @@ export default function GenerateNowPage() {
         },
     })
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        const response = await fetch("/api/image", {
-            method: "POST",
-            body: JSON.stringify(values),
-        });
-        const data = await response.json()
+        try {
+            setLoding(true)
+            const response = await fetch("/api/image", {
+                method: "POST",
+                body: JSON.stringify(values),
+            });
+            const data = await response.json()
 
-        setOutputImg(data.url)
+            setOutputImg(data.url)
+        } catch (error) {
+            console.error(error)
+
+        } finally {
+            setLoding(false)
+        }
     }
 
     return (
@@ -97,15 +106,17 @@ export default function GenerateNowPage() {
                                 )}
                             />
                             <motion.button
+                                disabled={loding}
+                                type="submit"
+                                className={`w-full mt-4 bg-gradient-to-r ${loding ? 'from-gray-400 to-gray-500 cursor-not-allowed' : 'from-blue-600 to-indigo-600 hover:shadow-xl hover:scale-[1.02]'} text-white py-3 rounded-lg font-medium shadow-lg transition-all duration-300 flex items-center justify-center gap-2`}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.7 }}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                type="submit"
-                                className="w-full mt-4 px-6 py-3 rounded-lg transition duration-300 ease-in-out bg-blue-500 text-white hover:bg-blue-600"
+                                whileTap={{ scale: loding ? 1 : 0.95 }}
+                                whileHover={{ scale: loding ? 1 : 1.05 }}
+                                layout
                             >
-                                Generate
+                                {loding ? (<><BiLoader className='animate-spin text-xl' /> <span>Generating...</span></>) : "Generate"}
                             </motion.button>
                         </form>
                     </Form>
