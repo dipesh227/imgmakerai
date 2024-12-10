@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   const randomSeed = generateRandomNumber();
   const image = `https://image.pollinations.ai/prompt/${encodeURIComponent(
     prompt
-  )}&seed=${randomSeed}`;
+  )}?seed=${randomSeed}&width=512&height=512&nologo=True`;
 
   await fetch(image);
   return NextResponse.json({ url: image });
