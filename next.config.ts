@@ -12,6 +12,12 @@ module.exports = {
         port: "",
         pathname: "/u/**",
       },
+      {
+        protocol: "https",
+        hostname: "image.pollinations.ai",
+        port: "",
+        pathname: "/prompt/**",
+      },
     ],
   },
 };

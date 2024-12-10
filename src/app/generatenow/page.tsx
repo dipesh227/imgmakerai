@@ -1,7 +1,44 @@
 'use client'
+
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+} from "@/components/ui/form"
+
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import Image from "next/image";
+
+const formSchema = z.object({
+    prompt: z.string().min(7, { message: "Prompt must be at least 7 characters" })
+})
 
 export default function GenerateNowPage() {
+    const [outputImg, setOutputImg] = useState<string | null>(null)
+    const [loding, setLoding] = useState<boolean>(false)
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            prompt: "",
+        },
+    })
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        const response = await fetch("/api/image", {
+            method: "POST",
+            body: JSON.stringify(values),
+        });
+        const data = await response.json()
+
+        setOutputImg(data.url)
+    }
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen w-full">
             <motion.h1
@@ -15,33 +52,53 @@ export default function GenerateNowPage() {
             <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl">
                 <div className="w-full md:w-1/2">
                     <p className="mb-4 text-center">Write your thinking of what you want to generate below:</p>
-                    <form className="mb-4">
-                        <motion.input
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
-                            type="text"
-                            className="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2"
-                            placeholder="Describe your image..."
-                        />
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            type="submit"
-                            className="w-full mt-4 px-6 py-3 rounded-lg transition duration-300 ease-in-out bg-blue-500 text-white hover:bg-blue-600"
-                        >
-                            Generate
-                        </motion.button>
-                    </form>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                            <FormField
+                                control={form.control}
+                                name="prompt"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <motion.input
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ duration: 0.5, delay: 0.2 }}
+                                                type="text"
+                                                className="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2"
+                                                placeholder="Describe your image..."
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                type="submit"
+                                className="w-full mt-4 px-6 py-3 rounded-lg transition duration-300 ease-in-out bg-blue-500 text-white hover:bg-blue-600"
+                            >
+                                Generate
+                            </motion.button>
+                        </form>
+                    </Form>
+
                 </div>
                 <div className="w-full md:w-1/2 flex items-center justify-center">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: 0.4 }}
-                        className="border-2 rounded-lg aspect-square flex items-center justify-center w-64 h-64 bg-opacity-80 dark:bg-opacity-80 bg-gray-100 dark:bg-gray-800"
+                        className="border-2 rounded-lg aspect-square flex items-center justify-center w-96 h-96 bg-opacity-80 dark:bg-opacity-80 bg-gray-100 dark:bg-gray-800"
                     >
-                        <p className="text-lg">Your image will appear here</p>
+                        {outputImg
+                            ? (<Image alt="Your image will appear here" src={outputImg} width={300} height={300} />)
+                            : (<p className="text-lg">Your image will appear here</p>)
+                        }
+
+
                     </motion.div>
                 </div>
             </div>

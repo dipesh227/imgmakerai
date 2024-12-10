@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-export async function Post(request: NextRequest) {
+export async function POST(request: NextRequest) {
   const { prompt } = await request.json();
   const generateRandomNumber = () => {
     return Math.floor(Math.random() * 10000000) + 1;
@@ -10,5 +10,5 @@ export async function Post(request: NextRequest) {
   )}&seed=${randomSeed}`;
 
   await fetch(image);
-  return NextResponse.json({ image });
+  return NextResponse.json({ url: image });
 }
