@@ -21,7 +21,7 @@ const formSchema = z.object({
 
 export default function GenerateNowPage() {
     const [outputImg, setOutputImg] = useState<string | null>(null)
-    const [loding, setLoding] = useState<boolean>(false)
+    // const [loding, setLoding] = useState<boolean>(false)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
